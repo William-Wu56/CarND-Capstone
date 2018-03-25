@@ -28,7 +28,7 @@ TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 LOOP_RATE               = 10  # Hz
 LOOKAHEAD_WPS           = 100 # 200
 DISTANCE_TO_CLOSEST     = 999999999
-STOP_DISTANCE           = 0
+STOP_DISTANCE           = -10
 METERS_PER_KILOMETER    = 1000
 SECONDS_PER_HOUR        = 3600
 MAX_ACCELERATION        = 0.8
@@ -67,11 +67,11 @@ class WaypointUpdater(object):
     rospy.loginfo("WaypointUpdater - Initializing waypoint updater...")
     rospy.logdebug("WaypointUpdater - Suscribing to channels...")
 
-    rospy.Subscriber('/current_pose',      PoseStamped,  self.on_current_pose_received)
-    rospy.Subscriber('/current_velocity',  TwistStamped, self.on_velocity_received)
-    rospy.Subscriber('/base_waypoints',    Lane,         self.on_base_waypoints_received)
-    rospy.Subscriber('/traffic_waypoint',  Int32,        self.on_traffic_waypoint_received)
-    rospy.Subscriber('/obstacle_waypoint', Lane,         self.on_obstacle_waypoint_received)
+    rospy.Subscriber('/current_pose',      PoseStamped,  self.pose_cb)
+    rospy.Subscriber('/current_velocity',  TwistStamped, self.get_waypoint_velocity)
+    rospy.Subscriber('/base_waypoints',    Lane,         self.waypoints_cb)
+    rospy.Subscriber('/traffic_waypoint',  Int32,        self.traffic_cb)
+    rospy.Subscriber('/obstacle_waypoint', Lane,         self.obstacle_cb)
 
     rospy.logdebug("WaypointUpdater - Creating required publishers...")
 
@@ -90,13 +90,13 @@ class WaypointUpdater(object):
     rospy.logdebug("WaypointUpdater - Target_speed set to %s. m/s", self.target_velocity)
     rospy.loginfo("WaypointUpdater - Waypoint updater initialization finished.")
 
-  def on_current_pose_received(self, msg):
+  def pose_cb(self, msg):
     self.current_pose = msg.pose
 
-  def on_velocity_received(self, msg):
+  def get_waypoint_velocity(self, msg):
     self.current_velocity = msg.twist.linear.x
 
-  def on_base_waypoints_received(self, lane):
+  def waypoints_cb(self, lane):
     self.map_waypoints       = lane.waypoints
     self.map_waypoints_count = len(self.map_waypoints)
 
@@ -109,10 +109,10 @@ class WaypointUpdater(object):
     self.kdtree = scipy.spatial.KDTree(data)
     self.is_map_initialized = True
 
-  def on_traffic_waypoint_received(self, msg):
+  def traffic_cb(self, msg):
     self.stop_waypoint_index = msg.data
 
-  def on_obstacle_waypoint_received(self, msg):
+  def obstacle_cb(self, msg):
     # TODO: Callback for /obstacle_waypoint message. We will implement it later
     pass
 
