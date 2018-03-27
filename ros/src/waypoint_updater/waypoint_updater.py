@@ -28,7 +28,7 @@ TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 LOOP_RATE               = 10  # Hz
 LOOKAHEAD_WPS           = 100 # 200
 DISTANCE_TO_CLOSEST     = 999999999
-STOP_DISTANCE           = -10
+STOP_DISTANCE           = 0
 METERS_PER_KILOMETER    = 1000
 SECONDS_PER_HOUR        = 3600
 MAX_ACCELERATION        = 0.8
